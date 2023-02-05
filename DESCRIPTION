@@ -1,0 +1,21 @@
+Package: spatialews_biocom
+Type: Package
+Title: The Title of the Project
+Version: 0.0.0.9000
+Authors@R: c(
+    person(given   = "Sonia",
+           family  = "Kefi",
+           role    = c("aut", "cre", "cph"),
+           email   = "sonia.kefi@umontpellier.fr",
+           comment = c(ORCID = "0000-0002-9678-7770")))
+Description: A paragraph providing a full description of the project (on 
+    several lines...)
+URL: https://github.com/skefi/spatialews_biocom
+BugReports: https://github.com/skefi/spatialews_biocom/issues
+License: GPL (>= 2)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.2
+Imports: 
+    devtools,
+    here

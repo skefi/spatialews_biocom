@@ -1,0 +1,11 @@
+^spatialews_biocom\.Rproj$
+^\.Rproj\.user$
+^\.DS_Store$
+^LICENSE\.md$
+^data$
+^outputs$
+^figures$
+^analyses$
+^make\.R$
+^README\.Rmd$
+^README\.html$
