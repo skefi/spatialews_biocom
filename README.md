@@ -3,6 +3,10 @@
 # spatialews\_biocom
 
 <!-- badges: start -->
+
+[![License: GPL (&gt;=
+2)](https://img.shields.io/badge/License-GPL%20%28%3E%3D%202%29-blue.svg)](https://choosealicense.com/licenses/gpl-2.0/)
+[![Dependencies](https://img.shields.io/badge/dependencies-2/94-green?style=flat)](#)
 <!-- badges: end -->
 
 Research Compendium of the project **{{ PLEASE ADD A FEW WORDS }}**
