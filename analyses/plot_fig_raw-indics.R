@@ -8,8 +8,8 @@ library(tidyr) # for gather
 # Parameters needed 
 #---------------------------------------------------------------------------
 # From _targets.R
-NPERM = 3 #value use for final analyses: 199
-BOOTN = 3
+NPERM = 199 #value use for final analyses: 199
+BOOTN = 2999 #value use for final analyses: 2999
 path_output <- here::here("outputs")
 
 

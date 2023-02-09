@@ -2,7 +2,7 @@
 #' 
 #' @author Sonia Kefi \email{sonia.kefi@umontpellier.fr}
 #' 
-#' @date 2022/02/07
+#' @date 2023/02/07
 
 
 ## Attach required packages ----

@@ -10,8 +10,8 @@ source(here::here("R", "functions_helper.R"))
 #---------------------------------------------------------------------------
 # From _targets.R
 path_output <- here::here("outputs")
-NPERM = 3 #value used for final analyses: 199
-BOOTN = 3 #value used for final analyses: 2999
+NPERM = 199 #value used for final analyses: 199
+BOOTN = 2999 #value used for final analyses: 2999
 
 ALPHA <- 0.05 # Significance level for indicator trends
 

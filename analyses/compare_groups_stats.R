@@ -9,7 +9,7 @@ library(plyr)
 #---------------------------------------------------------------------------
 
 # From _targets.R
-NPERM = 3 #value use for final analyses: 199
+NPERM = 199 #value use for final analyses: 199
 path_output <- here::here("outputs")
 
 

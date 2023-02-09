@@ -7,11 +7,11 @@ source(here::here("R", "functions_helper.R"))
 #---------------------------------------------------------------------------
 
 # From _targets.R
-NPERM = 3 #value use for final analyses: 199
+NPERM = 199 #value use for final analyses: 199
 path_output <- here::here("outputs")
 
-# New here
-BOOTN = 3 #value use for final analyses: 2999; bootstraping for extimation of the slope of the spatial metrics
+# New here:
+BOOTN = 2999 #value use for final analyses: 2999; bootstraping for extimation of the slope of the spatial metrics
 # We use the bootstrap to determine confidence intervals. We need a high value 
 # here so that the tails of the resulting distribution of slopes are well-sampled. 
 # Efron recommends at least 1999, but it is quite cheap, so we use BOOTN=2999. 
