@@ -1,6 +1,6 @@
 Package: spatialews_biocom
 Type: Package
-Title: The Title of the Project
+Title: Spatial metrics calculation in the Biocom data set
 Version: 0.0.0.9000
 Authors@R: c(
     person(given   = "Sonia",
@@ -8,8 +8,7 @@ Authors@R: c(
            role    = c("aut", "cre", "cph"),
            email   = "sonia.kefi@umontpellier.fr",
            comment = c(ORCID = "0000-0002-9678-7770")))
-Description: A paragraph providing a full description of the project (on 
-    several lines...)
+Description:  Code associated with the paper 'Dryland resilience to aridity is associated with stonger vegetation patchiness'
 URL: https://github.com/skefi/spatialews_biocom
 BugReports: https://github.com/skefi/spatialews_biocom/issues
 License: GPL (>= 2)
