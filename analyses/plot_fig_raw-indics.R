@@ -1,4 +1,4 @@
-# Plot indicators along gradients; Fig S2, S9, S13
+# Plot indicators along gradients; Fig S2, S8, S12
 
 library(tidyr) # for gather
 
@@ -138,7 +138,7 @@ plot_grid(fig_mod, fig_dat, labels = c('A', 'B'), ncol=2,nrow=1)
 
 
 #---------------------------------------------------------------------------
-# Fig. S9: Trends in data - 2 groups 
+# Fig. S8: Trends in data - 2 groups 
 #---------------------------------------------------------------------------
 
 branch1 <- subset(indics_fmt_dat, grps2==1)
@@ -177,7 +177,7 @@ grid.arrange(plot1, plot2, layout_matrix = lay)
 
 
 ##---------------------------------------------------------------------------
-### Fig. S13: plot raw data per 3 branch
+### Fig. S12: plot raw data per 3 branch
 ##---------------------------------------------------------------------------
 
 branch31 <- subset(indics_fmt_dat, grps3==1)

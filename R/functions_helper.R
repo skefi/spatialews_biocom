@@ -9,7 +9,6 @@
 #' @export 
 #'
 #' @examples stdz()
-
 stdz <- function(X, 
                  mu = mean(X, na.rm = na.rm), 
                  sigma = sd(X, na.rm = na.rm), 
@@ -27,7 +26,6 @@ stdz <- function(X,
 #' @export
 #'
 #' @examples fl_indic(m)
-
 fl_indic <- function(m) { 
   slope <- attr(m, "slope") 
   cell_size <- attr(m, "cell_size") 
@@ -44,7 +42,6 @@ fl_indic <- function(m) {
 #' @export
 #'
 #' @examples all_indicf(mat)
-
 all_indicf <- function(mat) { 
   #   sink() # close sink so all messages appear directly on the console
   #   cat(".")

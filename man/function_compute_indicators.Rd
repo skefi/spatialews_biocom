@@ -4,12 +4,10 @@
 \alias{function_compute_indicators}
 \title{Function which computes all the indicators}
 \usage{
-function_compute_indicators(NPERM, N_SHUFFLE, path_output)
+function_compute_indicators(NPERM, path_output)
 }
 \arguments{
 \item{NPERM}{}
-
-\item{N_SHUFFLE}{}
 
 \item{path_output}{}
 }
@@ -20,5 +18,5 @@ indics
 Function which computes all the indicators
 }
 \examples{
-function_compute_indicators(NPERM,N_SHUFFLE,path_output)
+function_compute_indicators(NPERM,path_output)
 }

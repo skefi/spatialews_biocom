@@ -2,7 +2,7 @@
 % Please edit documentation in R/function_prepare_data.R
 \name{function_prepare_data}
 \alias{function_prepare_data}
-\title{This file will read the biocom data from files and merge them into suitable tables for this analysis. Matrices are read and put in the same order as rows in the biocom database.}
+\title{This file reads the Biocom data from files and merges them into suitable tables for this analysis. Matrices are read and put in the same order as rows in the biocom database.}
 \usage{
 function_prepare_data(path_data, path_output)
 }
@@ -10,8 +10,8 @@ function_prepare_data(path_data, path_output)
 ourdata.rda
 }
 \description{
-This file will read the biocom data from files and merge them into suitable tables for this analysis. Matrices are read and put in the same order as rows in the biocom database.
+This file reads the Biocom data from files and merges them into suitable tables for this analysis. Matrices are read and put in the same order as rows in the biocom database.
 }
 \examples{
-function_prepare_data(overwrite = FALSE)
+function_prepare_data(path_data, path_output)
 }

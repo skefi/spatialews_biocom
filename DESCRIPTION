@@ -7,8 +7,12 @@ Authors@R: c(
            family  = "Kefi",
            role    = c("aut", "cre", "cph"),
            email   = "sonia.kefi@umontpellier.fr",
-           comment = c(ORCID = "0000-0002-9678-7770")))
-Description:  Code associated with the paper 'Dryland resilience to aridity is associated with stonger vegetation patchiness'
+           comment = c(ORCID = "0000-0002-9678-7770")),
+   person(given   = "Alexandre",
+           family  = "Genin",
+           role    = c("aut", "cre", "cph"))
+           )
+Description:  Code associated with the paper 'Dryland resilience to aridity is associated with self-organized vegetation patchiness'
 URL: https://github.com/skefi/spatialews_biocom
 BugReports: https://github.com/skefi/spatialews_biocom/issues
 License: GPL (>= 2)

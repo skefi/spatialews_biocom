@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions_helper.R
 \name{stdz}
 \alias{stdz}
-\title{Standardize}
+\title{Standardize metrics}
 \usage{
 stdz(
   X,
@@ -24,7 +24,7 @@ stdz(
 ( X - mu ) / sigma
 }
 \description{
-Standardize
+Standardize metrics
 }
 \examples{
 stdz()

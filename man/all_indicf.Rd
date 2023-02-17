@@ -4,7 +4,7 @@
 \alias{all_indicf}
 \title{Function that computes indicators}
 \usage{
-all_indicf(mat, N_SHUFFLE)
+all_indicf(mat)
 }
 \arguments{
 \item{mat}{}

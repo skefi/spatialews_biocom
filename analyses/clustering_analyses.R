@@ -53,7 +53,7 @@ GGally::ggpairs(clust_dat,
   geom_density(fill="grey",bw = .14,alpha= .7) +
   theme_minimal() + 
   theme(text = element_text(size=10))+
-  labs(x = "cover", 
+  labs(x = "MF", 
        y = "density")+
   theme(legend.position="none")
 

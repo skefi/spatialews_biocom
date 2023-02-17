@@ -4,17 +4,10 @@
 \alias{function_compute_model_indicators}
 \title{Function which computes all the indicators}
 \usage{
-function_compute_model_indicators(
-  NPERM,
-  N_SHUFFLE,
-  path_output,
-  path_model_data
-)
+function_compute_model_indicators(NPERM, path_output, path_model_data)
 }
 \arguments{
 \item{NPERM}{}
-
-\item{N_SHUFFLE}{}
 
 \item{path_output}{}
 
@@ -27,5 +20,5 @@ model_indics_df
 Function which computes all the indicators
 }
 \examples{
-function_compute_model_indicators(NPERM,N_SHUFFLE,path_output,path_model_data)
+function_compute_model_indicators(NPERM,path_output,path_model_data)
 }

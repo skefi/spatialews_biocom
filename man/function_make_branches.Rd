@@ -4,12 +4,10 @@
 \alias{function_make_branches}
 \title{Function which classifies sites into branches (or groups of dryland sites)}
 \usage{
-function_make_branches(NPERM, N_SHUFFLE, path_output)
+function_make_branches(NPERM, path_output)
 }
 \arguments{
 \item{NPERM}{}
-
-\item{N_SHUFFLE}{}
 
 \item{path_output}{}
 }
@@ -20,5 +18,5 @@ indics
 Function which classifies sites into branches (or groups of dryland sites)
 }
 \examples{
-function_make_branches(NPERM,N_SHUFFLE,path_output)
+function_make_branches(NPERM,path_output)
 }

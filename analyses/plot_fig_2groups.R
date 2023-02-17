@@ -1,4 +1,4 @@
-# Allows to plot the figures 2, 3, S7 and S8
+# Allows to plot the figures 2, 3, S6 and S7
 
 
 
@@ -162,7 +162,7 @@ plot_grid(row3, row2, ncol=1, nrow=2)
 
 
 #---------------------------------------------------------------------------
-# Figure S7 : Vege type per branch
+# Figure S6 : Vege type per branch
 #---------------------------------------------------------------------------
 
 arid.branch1 = arid[arid$grps2==1,]
@@ -248,7 +248,7 @@ plot_grid(fig.branch2.vegtype, fig.branch1.vegtype,fig.frac, labels=c("A","B","C
 
 
 #---------------------------------------------------------------------------
-# Figure S8 : Envi var 
+# Figure S7 : Envi var 
 #---------------------------------------------------------------------------
 
 fig.boxplot2.cover = ggplot(arid, aes(x = pretty_grps2, y = imgcover, fill=pretty_grps2)) + 

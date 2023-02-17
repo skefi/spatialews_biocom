@@ -1,4 +1,4 @@
-# Plot slopes of the indicators in the model and in the data (for the whole data set or for groups) ; Fig 2, S3, S10, S14
+# Plot slopes of the indicators in the model and in the data (for the whole data set or for groups) ; Fig 2, S3, S9, S13
 
 library(ggplot2)
 require(tidybayes)
@@ -186,14 +186,14 @@ plot_grid(top_row, bottom_row, ncol = 1)
 
 
 #---------------------------------------------------------------------------
-# Figure S10 trends diff - 2 groups
+# Figure S9 trends diff - 2 groups
 #---------------------------------------------------------------------------
 
 plot_grid(plot_trends2, plot_trends2_diffs, labels= c("A","B"), ncol = 1)
 
 
 #---------------------------------------------------------------------------
-# Figure S14 trends diff - 3 groups
+# Figure S13 trends diff - 3 groups
 #---------------------------------------------------------------------------
 
 plot_trends3 <- 
