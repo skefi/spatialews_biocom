@@ -12,13 +12,29 @@ Authors@R: c(
            family  = "Genin",
            role    = c("aut", "cre", "cph"))
            )
-Description:  Code associated with the paper 'Dryland resilience to aridity is associated with self-organized vegetation patchiness'
+Description: Code associated with the paper 'Dryland resilience to aridity is associated with self-organized vegetation patchiness'
 URL: https://github.com/skefi/spatialews_biocom
 BugReports: https://github.com/skefi/spatialews_biocom/issues
 License: GPL (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Imports: 
+    boot,
+    broom,
+    dendextend,
     devtools,
-    here
+    dplyr,
+    future,
+    future.apply,
+    here,
+    lme4,
+    mclust,
+    parallel,
+    plyr,
+    readxl,
+    reticulate,
+    spatialwarnings,
+    stats,
+    tidybayes,
+    tidyr

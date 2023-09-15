@@ -7,8 +7,6 @@
 get_lm_model(dat, samples)
 }
 \arguments{
-\item{dat}{}
-
 \item{samples}{}
 }
 \value{

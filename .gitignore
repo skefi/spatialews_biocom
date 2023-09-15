@@ -19,3 +19,10 @@
 # User-specific files ----
 README.html
 inst/doc
+
+# Images ----
+.csv
+.pdf
+.jpg
+.png
+.tiff

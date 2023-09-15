@@ -7,8 +7,6 @@
 signf(x, alpha)
 }
 \arguments{
-\item{x}{}
-
 \item{alpha}{}
 }
 \value{

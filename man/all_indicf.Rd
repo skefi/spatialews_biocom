@@ -2,9 +2,9 @@
 % Please edit documentation in R/functions_helper.R
 \name{all_indicf}
 \alias{all_indicf}
-\title{Function that computes indicators}
+\title{Function that computes the spatial metrics}
 \usage{
-all_indicf(mat)
+all_indicf(mat, N_SHUFFLE)
 }
 \arguments{
 \item{mat}{}
@@ -13,7 +13,7 @@ all_indicf(mat)
 all indic values
 }
 \description{
-Function that computes indicators
+Function that computes the spatial metrics
 }
 \examples{
 all_indicf(mat)

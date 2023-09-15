@@ -4,10 +4,13 @@
 \alias{all_indicf_with_fl}
 \title{Function used for computing model indicators. We define a function that computes all indicators + the flowlength. We had to do that separately before because we had to extract the information on the slope from the biocom database. Here on model data it is different because we have no slope information: we just assume the slope is 8.707794 (which is the average slope in the biocom dataset, and cell size is 1 (i.e. flowlength is defined in terms of cell size).}
 \usage{
-all_indicf_with_fl(m)
+all_indicf_with_fl(m, N_SHUFFLE)
 }
 \arguments{
 \item{m}{}
+}
+\value{
+all_indicf
 }
 \description{
 Function used for computing model indicators. We define a function that computes all indicators + the flowlength. We had to do that separately before because we had to extract the information on the slope from the biocom database. Here on model data it is different because we have no slope information: we just assume the slope is 8.707794 (which is the average slope in the biocom dataset, and cell size is 1 (i.e. flowlength is defined in terms of cell size).

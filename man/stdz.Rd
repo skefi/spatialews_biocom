@@ -12,12 +12,6 @@ stdz(
 )
 }
 \arguments{
-\item{X}{}
-
-\item{mu}{}
-
-\item{sigma}{}
-
 \item{na.rm}{}
 }
 \value{

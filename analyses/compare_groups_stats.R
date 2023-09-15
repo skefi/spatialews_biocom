@@ -8,8 +8,7 @@ library(plyr)
 # Parameters needed 
 #---------------------------------------------------------------------------
 
-# From _targets.R
-NPERM = 199 #value use for final analyses: 199
+NPERM = 199 #value use for first submission: 199, for revision: 200
 path_output <- here::here("outputs")
 
 
@@ -17,7 +16,7 @@ path_output <- here::here("outputs")
 # LOAD data
 #---------------------------------------------------------------------------
 
-filename <- paste0("indics-data-grps_Nperm_", NPERM,".rda")
+filename <- paste0("indics-data50-grps_Nperm_", NPERM,"_rev.rda")
 load(file.path(path_output,filename))
 
 load(file.path(path_output,"data_biocom.rda"))
@@ -131,7 +130,7 @@ anova(lm(data$value ~ data$grps2))
 # 2 groups : mixed models, compare spatial spatial metrics between the 2 groups
 #---------------------------------------------------------------------------
 
-data <- subset(indics, indics$indic=="logfmaxpatch")
+data <- subset(indics, indics$indic=="slope")
 data$grps2<-as.factor(data$grps2)
 mod <- lmer(data = data, value ~ grps2 + ( 1 |plotn)) 
 #summary(mod)
@@ -200,3 +199,4 @@ mod <- lm(data = data, value ~ grps3)
 summary(mod)
 
 anova(lm(data$value ~ data$grps3))
+

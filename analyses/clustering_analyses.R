@@ -1,18 +1,17 @@
-# Calculates the trend (slope) of each of the spatial metrics along the aridity gradient
+# Performs 2D clustering analyses on data
+# Figures S11
+
 
 library(ggplot2)
-#https://cran.r-project.org/web/packages/dendextend/vignettes/FAQ.html
 library(dendextend)
 library(mclust)
 
 source(here::here("R", "functions_helper.R"))
 
-
 #---------------------------------------------------------------------------
 # Parameters needed 
 #---------------------------------------------------------------------------
 
-# From _targets.R
 NPERM = 199 #value use for final analyses: 199
 path_output <- here::here("outputs")
 
@@ -21,7 +20,7 @@ path_output <- here::here("outputs")
 # LOAD data
 #---------------------------------------------------------------------------
 
-filename <- paste0("indics-data-grps_Nperm_", NPERM,".rda")
+filename <- paste0("indics-data50-grps_Nperm_", NPERM,"_rev.rda")
 load(file.path(path_output,filename))
 
 load(file.path(path_output,"data_biocom.rda"))
@@ -115,13 +114,13 @@ ggplot(elbow_data, aes(x = ngroup, y = improvement)) +
   labs(x = "Number of groups", 
        y = "Difference in percent variance explained as we add group number")
 
-# After we go from one group to two, we get an improvement of about 45%, then it is under 10%. It can be an argument to say that we have two groups.
+# After we go from one group to two, we get an improvement of about 45%, then it is under 10%. This is an argument in favor of choosing two groups.
 
 
 #---------------------------------------------------------------------------
 # Gaussian mixture
 #---------------------------------------------------------------------------
-#We can use an information criterion to test how many groups there are in the  data. This requires defining a likelihood, which is often done by assuming that  the points are drawn from a mixture of normal distributions. Mclust provides  what's necessary to fit the distributions. 
+#We can use an information criterion to test how many groups there are in the  data. This requires defining a likelihood, which is often done by assuming that  the points are drawn from a mixture of normal distributions. Mclust provides what's necessary to fit the distributions. 
 
 clustfits <- mclust::mclustBIC(clust_dat_scaled) #, verbose = (.PROGRESS == "time") )
 summary(clustfits)
@@ -151,7 +150,7 @@ envdat_mclust3 <- data.frame(clust_dat_scaled,
 GGally::ggpairs(envdat_mclust3, 
                 aes(color = classif, alpha = .3))
 
-# One reason why Mclust always gives more group that intuition is because the form  of the distributions is assumed to be normal. This means that all deviations from a mixture of normal distribution (which is bound to happen a lot in messy datasets) is accomodated by adding distributions. 
+# One reason why Mclust always gives more group that intuition is because the form  of the distributions are assumed to be normal. This means that all deviations from a mixture of normal distribution (which is bound to happen a lot in messy datasets) is accommodated by adding distributions. 
 
 
 

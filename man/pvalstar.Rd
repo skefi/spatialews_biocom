@@ -7,8 +7,6 @@
 pvalstar(X, NAval = NA_character_)
 }
 \arguments{
-\item{X}{}
-
 \item{NAval}{}
 }
 \value{

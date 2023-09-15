@@ -7,9 +7,10 @@
 get_slope_along_aridity_model(tbl, ...)
 }
 \arguments{
-\item{tbl}{}
-
 \item{...}{}
+}
+\value{
+estimate
 }
 \description{
 Function that given a dataset, will return BOOTN estimates of the slope along

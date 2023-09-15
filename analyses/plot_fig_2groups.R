@@ -1,16 +1,19 @@
-# Allows to plot the figures 2, 3, S6 and S7
-
-
+# Version for revision PNAS
+# Figures 2, 3, S12, S13
 
 #devtools::install_github('alexgenin/rollply')
 library(rollply)
 library(ggplot2)
+library(cowplot)
+library(dplyr)
+library(plyr)
+library(tidyr)
+
 
 #---------------------------------------------------------------------------
 # Parameters needed 
 #---------------------------------------------------------------------------
-# From _targets.R
-NPERM = 199 #value use for final analyses: 199
+NPERM = 199 #value use for first sub: 199, for revision: 200
 path_output <- here::here("outputs")
 
 #---------------------------------------------------------------------------
@@ -18,10 +21,9 @@ path_output <- here::here("outputs")
 #---------------------------------------------------------------------------
 
 load(here::here("outputs", "biocom-grps.rda"))
-#load(file.path(path_output,"data_biocom.rda"))
 arid <- biocom
 
-filename <- paste0("indics-data-grps_Nperm_", NPERM,".rda")
+filename <- paste0("indics-data50-grps_Nperm_", NPERM,"_rev.rda")
 load(file.path(path_output,filename))
 
 
@@ -43,20 +45,22 @@ rolling_means2 <- subset(rolling_means2, n > 30)
 
 fig.branches2.cover = ggplot(NULL, aes(x = Aridity, y = imgcover, color = pretty_grps2)) + 
   geom_point(data = arid,alpha=.6,size=1) + 
-  scale_color_manual(values = c("#5ab4ac","#d8b365"))+ 
+  #scale_color_manual(values = c("#5ab4ac","#d8b365"))+ # colors from the 1st submission
+  scale_color_manual(values = c("#40B0A6","#E1BE6A"))+ 
   theme_minimal() + 
   theme(legend.position="none",
-        text = element_text(size=10))+
+        text = element_text(size=12))+
   labs(x = "aridity", 
        y = "cover")+
   geom_point(aes(x = Aridity, y = mean.cover, size = n), size = 2, alpha=0.9, data = rolling_means2)
 
+
 fig.branches2.mf = ggplot(NULL, aes(x = Aridity, y = MF, color = pretty_grps2)) + 
   geom_point(data = arid,alpha=.6,size=1) + 
-  scale_color_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_color_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
   theme(legend.position="none",
-        text = element_text(size=10))+
+        text = element_text(size=12))+
   labs(x = "aridity", 
        y = "MF")+
   geom_point(aes(x = Aridity, y = mean.mf, size = n), size = 2, alpha=0.9, data = rolling_means2)
@@ -66,10 +70,10 @@ fig.gaussian.fit2.cover = ggplot(arid, aes(x = imgcover)) +
                bw = .04,alpha= .7) +
   geom_point(aes(color = pretty_grps2), 
              y = rnorm(nrow(arid), 0, 0.02), alpha = .4) +
-  scale_colour_manual(values=c("#5ab4ac","#d8b365"))+
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_colour_manual(values=c("#40B0A6","#E1BE6A"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
-  theme(text = element_text(size=10))+
+  theme(text = element_text(size=12))+
   labs(x = "cover", 
        y = "density")+
   theme(legend.position="none")
@@ -79,16 +83,205 @@ fig.gaussian.fit2.mf = ggplot(arid, aes(x = MF)) +
                bw = .14,alpha= .7) + 
   geom_point(aes(color = pretty_grps2), 
              y = rnorm(nrow(arid), 0, 0.02), alpha = .4) + 
-  scale_color_manual(values=c("#5ab4ac","#d8b365"))+
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_color_manual(values=c("#40B0A6","#E1BE6A"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
-  theme(text = element_text(size=10))+
+  theme(text = element_text(size=12))+
   labs(x = "MF", 
        y = "density")+
   theme(legend.position="none")
 
+# Figure from 1st submission 
 #5 x 9.5
 plot_grid(fig.branches2.cover, fig.branches2.mf, fig.gaussian.fit2.cover, fig.gaussian.fit2.mf, labels= c("A","B","C","D"),ncol=2, nrow=2)
+
+
+
+#---------------------------------------------------------------------------
+# Figure 2 revised
+# use potential analysis 
+#---------------------------------------------------------------------------
+
+load(here::here("outputs", "data_biocom.rda"))
+
+matrices <- ourdata[["matrices"]]
+biocom <- ourdata[["biocom"]]
+
+# 
+# Do the density analysis/detection of maxima/minima for cover
+# 
+# 
+# horizontal resolution 
+hres <- 0.01
+# bins (actually points along the gradient because bins overlap if the window size is 
+# greater than hres/2 below)
+bins <- seq(min(biocom[ ,"Aridity"]), 
+            max(biocom[ ,"Aridity"]), 
+            by = hres)
+# window size
+window_width <- hres * 15
+
+# y values at which the density will be evaluated
+yvalues <- seq(min(biocom[ ,"imgcover"]), 
+               max(biocom[ ,"imgcover"]), 
+               l = 1024)
+
+# 
+window_analysis <- llply(bins, function(bin) { 
+  # Compute density of points in window
+  ok <- subset(biocom, Aridity > (bin - window_width) & Aridity < (bin + window_width))
+  dens <- with(ok, density(imgcover, bw = bw.nrd(imgcover), 
+                           from = min(yvalues), to = max(yvalues), n = 2048))
+  dens <- approx(dens[["x"]], dens[["y"]], yvalues)[["y"]]
+  
+  # Get extrema and classify them into minima/maxima
+  ddens <- c(NA, diff(dens))
+  dddens <- c(NA, diff(ddens))
+  # We use dens > 1e-10 to avoid extrema due to noise in the tails of the densities, 
+  # use a higher value if needed to clean up even more here
+  extrem <- c(NA, diff(sign(ddens)) != 0 & dens > 1e-10)
+  extrem_type <- ifelse(ddens < 0, 1, 2)
+  #plot(yvalues, dens, pch = 20)
+  #points(yvalues, dens, col = extrem * (extrem_type + 2), cex = 2)
+  
+  extrems <- yvalues[extrem & ! is.na(extrem)]
+  extrems_types <- ifelse(ddens < 0, "maximum", "minimum")[extrem & ! is.na(extrem)]
+
+  list(values = data.frame(x = bin, y = yvalues, z = dens), 
+       extrems = data.frame(x = bin, y = extrems, type = extrems_types))
+}, .progress = "time")
+
+# Extract results
+grid <- ldply(window_analysis, function(o) o[["values"]])
+extrems <- ldply(window_analysis, function(o) o[["extrems"]])
+extrems$type2 <- extrems$type
+
+extrems$type2[extrems$type =="maximum" & extrems$y > 0.5] <- "max1" 
+extrems$type2[extrems$type =="maximum" & extrems$y < 0.5] <- "max2" 
+
+# plot
+fig.pot.cover <- 
+  ggplot(NULL, aes(x = x, y = y)) + 
+  geom_raster(aes(alpha = z), 
+              data = subset(grid, z > 0.1))+ 
+              #color = "black") + 
+  geom_point(aes(color = type2), data = extrems) + 
+  scale_color_manual(values = c("#40B0A6","#E1BE6A","white")) + 
+  scale_alpha(guide = "none") + 
+  theme_minimal() +
+  theme(legend.position="none",
+        text = element_text(size=12))+
+  labs(x = "aridity", 
+       y = "cover")
+#  labs(x = "Aridity", y = "Cover", title = "Density analysis for cover") 
+
+
+extrems_sub <- subset(extrems, extrems$type=="maximum")
+  
+  
+fig.branches2.cover.bis = 
+    ggplot(NULL) + 
+    geom_point(aes(x = Aridity, y = imgcover, color = pretty_grps2), data = arid,alpha=.8,size=1) + 
+    #scale_color_manual(values = c("#5ab4ac","#d8b365"))+ # colors from the 1st submission
+    scale_color_manual(values = c("#40B0A6","#E1BE6A","black"))+ 
+    theme_minimal() + 
+    theme(legend.position="none",
+          text = element_text(size=12))+
+    labs(x = "aridity", 
+         y = "cover")+
+    #geom_point(aes(x = Aridity, y = mean.cover, size = n), size = 2, alpha=0.9, data = rolling_means2)
+      #ggplot(NULL) +
+      geom_point(aes(x = x, y = y, size = n, color = type), size = 2, alpha=0.9, data = extrems_sub)
+
+
+
+# 
+# 
+# Do the same density analysis/detection of maxima/minima for MF
+# 
+# 
+hres <- 0.01
+bins <- seq(min(biocom[ ,"Aridity"]), 
+            max(biocom[ ,"Aridity"]), 
+            by = hres)
+window_width <- hres * 15
+yvalues <- seq(min(biocom[ ,"MF"]), 
+               max(biocom[ ,"MF"]), 
+               l = 1024)
+
+window_analysis <- llply(bins, function(bin) { 
+  ok <- subset(biocom, Aridity > (bin - window_width) & Aridity < (bin + window_width))
+  dens <- with(ok, density(MF, bw = bw.nrd(MF), 
+                           from = min(yvalues), to = max(yvalues), n = 2048))
+  dens <- approx(dens[["x"]], dens[["y"]], yvalues)[["y"]]
+  ddens <- c(NA, diff(dens))
+  dddens <- c(NA, diff(ddens))
+  extrem <- c(NA, diff(sign(ddens)) != 0 & dens > 0.5)
+  extrem_type <- ifelse(ddens < 0, 1, 2)
+  #plot(yvalues, dens, pch = 20)
+  #points(yvalues, dens, col = extrem * (extrem_type + 2), cex = 2)
+  
+  # Extract extrema 
+  extrems <- yvalues[extrem & ! is.na(extrem)]
+  extrems_types <- ifelse(ddens < 0, "maximum", "minimum")[extrem & ! is.na(extrem)]
+  
+  list(values = data.frame(nvals = nrow(ok), 
+                           x = bin, y = yvalues, z = dens), 
+       extrems = data.frame(nvals = nrow(ok), 
+                            x = bin, y = extrems, type = extrems_types))
+}, .progress = "time")
+
+grid <- ldply(window_analysis, function(o) o[["values"]])
+extrems <- ldply(window_analysis, function(o) o[["extrems"]])
+
+extrems$type2 <- extrems$type
+
+extrems$type2[extrems$type =="maximum" & extrems$y > 0] <- "max1" 
+extrems$type2[extrems$type =="maximum" & extrems$y < 0] <- "max2" 
+fig.pot.mf <- 
+  ggplot(NULL, aes(x = x, y = y)) + 
+  geom_raster(aes(alpha = z), 
+              data = subset(grid, z > 0.1))+ 
+              #color = "black") + 
+  geom_point(aes(color = type2), data = extrems) + 
+  scale_color_manual(values = c("#40B0A6","#E1BE6A","white")) + 
+  scale_alpha(guide = "none") + 
+  theme_minimal() +
+  theme(legend.position="none",
+        text = element_text(size=12))+
+  labs(x = "aridity", 
+       y = "cover")
+
+extrems_sub <- subset(extrems, extrems$type=="maximum")
+
+fig.branches2.mf.bis = 
+  ggplot(NULL, aes(x = Aridity, y = MF, color = pretty_grps2)) + 
+  geom_point(data = arid,alpha=.6,size=1) + 
+  scale_color_manual(values=c("#40B0A6","#E1BE6A","black"))+
+  theme_minimal() + 
+  theme(legend.position="none",
+        text = element_text(size=12))+
+  labs(x = "aridity", 
+       y = "MF")+
+    geom_point(aes(x = x, y = y, size = n, color = type), size = 2, alpha=0.9, data = extrems_sub)
+
+
+# Combine the two plots together and export 
+#library(patchwork)
+#plot_cover + 
+#  plot_mf + 
+#  plot_annotation(tag_suffix = ")", tag_levels = "a") + 
+#  plot_layout(ncol = 1)
+
+#ggsave("./density_plots_with_extrema.pdf", 
+#       width = 6, 
+#       height = 8)
+
+#plot_grid(fig.branches2.cover.bis, fig.branches2.mf.bis, fig.gaussian.fit2.cover, fig.gaussian.fit2.mf, labels= c("A","B","C","D"),ncol=2, nrow=2)
+
+plot_grid(fig.pot.cover, fig.pot.mf, fig.gaussian.fit2.cover, fig.gaussian.fit2.mf, labels= c("A","B","C","D"),ncol=2, nrow=2)
+
+
 
 
 
@@ -99,15 +292,17 @@ plot_grid(fig.branches2.cover, fig.branches2.mf, fig.gaussian.fit2.cover, fig.ga
 indics_c <- indics
 unique(indics_c$indic)
 indics_c <- subset(indics_c, indic != "cover")
-indics_c <- subset(indics_c, indic != "skewness")
+indics_c <- subset(indics_c, indic != "fmaxpatch")
+indics_c <- subset(indics_c, indic != "moran")
 
-indics_patch <- subset(indics_c, indic == "cutoff"  | indic == "logfmaxpatch" | indic == "plrange" | indic == "slope")
+indics_patch <- subset(indics_c, indic == "cutoff"  | indic == "logfmaxpatch" | indic == "slope")
 indics_patch$indic <- as.factor(indics_patch$indic)
-indics_patch$prop_order = factor(indics_patch$indic,levels=c("plrange","logfmaxpatch","slope","cutoff"),ordered=TRUE) 
+indics_patch$prop_order = factor(indics_patch$indic,levels=c("logfmaxpatch","slope","cutoff"),ordered=TRUE) 
+
+indics_patch$pretty_grps2 <- as.factor(indics_patch$pretty_grps2)
 
 facet_names3 <- list(
-  'plrange'="plr (***)",
-  'logfmaxpatch'="logfmaxpatch (***)",
+  'logfmaxpatch'="log(fmaxpatch) (***)",
   'slope'="slope (***)",
   'cutoff'="cutoff (***)"
 )
@@ -120,7 +315,7 @@ row3 <- ggplot(indics_patch,aes(x=pretty_grps2, y=value,fill=pretty_grps2,alpha=
   facet_wrap(~prop_order,
              labeller = facet_labeller3,
              scale="free_y",nrow=1) +
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"),name=NULL)+ #name removes the name of the legend
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"),name=NULL)+ #name removes the name of the legend
   theme_minimal() +
   theme(legend.position="none",
         text = element_text(size=12))+
@@ -128,13 +323,12 @@ row3 <- ggplot(indics_patch,aes(x=pretty_grps2, y=value,fill=pretty_grps2,alpha=
   labs(x= "",y="")+
   geom_boxplot()
 
-indics_ews <- subset(indics_c, indic == "moran"  | indic == "cv.variance" | indic == "sdr" | indic == "flowlength") 
+indics_ews <- subset(indics_c, indic == "cv.variance" | indic == "sdr" | indic == "flowlength") 
 indics_ews$indic <- as.factor(indics_ews$indic)
-indics_ews$prop_order = factor(indics_ews$indic,levels=c("cv.variance","moran","sdr","flowlength"),ordered=TRUE) #,"skewness"
+indics_ews$prop_order = factor(indics_ews$indic,levels=c("cv.variance","sdr","flowlength"),ordered=TRUE) #,"skewness"
 
 facet_names2 <- list(
   'cv.variance'="cv (***)",
-  'moran'="moran (NS)",
   'sdr'="sdr (NS)",
   'flowlength'="flowlength (***)"
 )
@@ -147,7 +341,7 @@ row2 <- ggplot(indics_ews,aes(x=pretty_grps2, y=value, fill=pretty_grps2,alpha=0
   facet_wrap(~prop_order,
              labeller = facet_labeller2,
              scale="free_y",nrow=1) +
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"),name=NULL)+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"),name=NULL)+
   theme_minimal() +
   theme(legend.position="bottom",
         text = element_text(size=12))+
@@ -156,13 +350,126 @@ row2 <- ggplot(indics_ews,aes(x=pretty_grps2, y=value, fill=pretty_grps2,alpha=0
   labs(x= "",y="")+
   geom_boxplot()
 
-# Fig 2 5x9.5
+## Fig 3 
+# fig3_spmetrics_boxplots.pdf
+# 5x9.5
 plot_grid(row3, row2, ncol=1, nrow=2)
+
+
+#--------------------------------------------------------------------------# Figure 3 revised : no log for fmaxpatch
+#--------------------------------------------------------------------------
+
+indics_c <- indics
+unique(indics_c$indic)
+indics_c <- subset(indics_c, indic != "cover")
+indics_c <- subset(indics_c, indic != "logfmaxpatch")
+indics_c <- subset(indics_c, indic != "moran")
+
+# transform indics_c in long format
+indics_c$indic <- as.factor(indics_c$indic)
+indics_sub <- indics_c[,c("indic","value","plotid","pretty_grps2")]
+indics_wide <- spread(indics_sub, indic, value)
+indics_wide$pretty_grps2 <- as.factor(indics_wide$pretty_grps2)
+
+#fmaxpatch
+fig.boxplot.fmaxpatch = ggplot(indics_wide, aes(x = pretty_grps2, y = fmaxpatch, fill=pretty_grps2)) + 
+  geom_boxplot(alpha=.7) + 
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  #theme(axis.text.x = element_text(angle=45))+
+  theme(axis.text.x = element_blank())+
+  labs(x = " ", 
+       y = "fmaxpatch (***; log scale)")+
+  scale_y_continuous(trans='log10')+
+  theme(legend.position="none")
+
+#slope
+fig.boxplot.slope = ggplot(indics_wide, aes(x = pretty_grps2, y = slope, fill=pretty_grps2)) + 
+  geom_boxplot(alpha=.7) + 
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  #theme(axis.text.x = element_text(angle=45))+
+  theme(axis.text.x = element_blank())+
+  labs(x = " ", 
+       y = "slope (***)")+
+  theme(legend.position="none")
+
+#cutoff
+fig.boxplot.cutoff = ggplot(indics_wide, aes(x = pretty_grps2, y = cutoff, fill=pretty_grps2)) + 
+  geom_boxplot(alpha=.7) + 
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  #theme(axis.text.x = element_text(angle=45))+
+  theme(axis.text.x = element_blank())+
+  labs(x = " ", 
+       y = "cutoff (***)")+
+  theme(legend.position="none")
+
+#cv
+fig.boxplot.cv = ggplot(indics_wide, aes(x = pretty_grps2, y = cv.variance, fill=pretty_grps2)) + 
+  geom_boxplot(alpha=.7) + 
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  #theme(axis.text.x = element_text(angle=45))+
+  theme(axis.text.x = element_blank())+
+  labs(x = " ", 
+       y = "cv (***)")+
+  theme(legend.position="none")
+
+#moran
+#fig.boxplot.moran = ggplot(indics_wide, aes(x = pretty_grps2, y = moran, fill=pretty_grps2)) + 
+ # geom_boxplot(alpha=.7) + 
+#  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+#  theme_minimal() + 
+#  theme(text = element_text(size=12))+
+  #theme(axis.text.x = element_text(angle=45))+
+#  theme(axis.text.x = element_blank())+
+#  labs(x = " ", 
+#       y = "moran (NS)")+
+#  theme(legend.position="none")
+
+#sdr
+fig.boxplot.sdr = ggplot(indics_wide, aes(x = pretty_grps2, y = sdr, fill=pretty_grps2)) + 
+  geom_boxplot(alpha=.7) + 
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  #theme(axis.text.x = element_text(angle=45))+
+  theme(axis.text.x = element_blank())+
+  labs(x = " ", 
+       y = "sdr (NS)")+
+  theme(legend.position="none")
+
+#fl
+fig.boxplot.fl = ggplot(indics_wide, aes(x = pretty_grps2, y = flowlength, fill=pretty_grps2)) + 
+  geom_boxplot(alpha=.7) + 
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  #theme(axis.text.x = element_text(angle=45))+
+  theme(axis.text.x = element_blank())+
+  labs(x = " ", 
+       y = "flowlength (***)")+
+  theme(legend.position="none")
+
+
+top_row <- plot_grid(fig.boxplot.fmaxpatch, fig.boxplot.slope, fig.boxplot.cutoff, ncol=3, nrow=1)
+
+bottom_row2 <- plot_grid(fig.boxplot.cv, fig.boxplot.sdr,fig.boxplot.fl, ncol=3,nrow=1)  
+
+## Fig 3 no log
+# fig3_spmetrics_boxplots_nolog.pdf
+# 5 x 9.5
+plot_grid(top_row, bottom_row2, ncol = 1)
 
 
 
 #---------------------------------------------------------------------------
-# Figure S6 : Vege type per branch
+# Figure S12 : Vege type per branch
 #---------------------------------------------------------------------------
 
 arid.branch1 = arid[arid$grps2==1,]
@@ -247,13 +554,14 @@ fig.frac <- ggplot(tab, aes(fill=veg_type, y=nb, x=branch)) +
 plot_grid(fig.branch2.vegtype, fig.branch1.vegtype,fig.frac, labels=c("A","B","C"),ncol=2,nrow=2)
 
 
+
 #---------------------------------------------------------------------------
 # Figure S7 : Envi var 
 #---------------------------------------------------------------------------
 
 fig.boxplot2.cover = ggplot(arid, aes(x = pretty_grps2, y = imgcover, fill=pretty_grps2)) + 
   geom_boxplot(alpha=.7) + 
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
   theme(text = element_text(size=10))+
   #theme(axis.text.x = element_text(angle=45))+
@@ -265,7 +573,7 @@ fig.boxplot2.cover = ggplot(arid, aes(x = pretty_grps2, y = imgcover, fill=prett
 
 fig.boxplot2.mf = ggplot(arid, aes(x = pretty_grps2, y = MF, fill=pretty_grps2)) + 
   geom_boxplot(alpha=.7) + 
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
   theme(text = element_text(size=10))+
    theme(axis.text.x = element_blank())+
@@ -275,7 +583,7 @@ fig.boxplot2.mf = ggplot(arid, aes(x = pretty_grps2, y = MF, fill=pretty_grps2))
 
 fig.boxplot2.arid = ggplot(arid, aes(x = pretty_grps2, y = Aridity, fill=pretty_grps2)) + 
   geom_boxplot(alpha=.7) + 
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
   theme(text = element_text(size=10))+
   theme(axis.text.x = element_blank())+
@@ -285,7 +593,7 @@ fig.boxplot2.arid = ggplot(arid, aes(x = pretty_grps2, y = Aridity, fill=pretty_
 
 fig.boxplot2.prod = ggplot(arid, aes(x = pretty_grps2, y = prod, fill=pretty_grps2)) + 
   geom_boxplot(alpha=.7) + 
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
   theme(text = element_text(size=10))+
   theme(axis.text.x = element_blank())+
@@ -295,7 +603,7 @@ fig.boxplot2.prod = ggplot(arid, aes(x = pretty_grps2, y = prod, fill=pretty_grp
 
 fig.boxplot2.sand = ggplot(arid, aes(x = pretty_grps2, y = Sand, fill=pretty_grps2)) + 
   geom_boxplot(alpha=.7) + 
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
   theme(text = element_text(size=10))+
   theme(axis.text.x = element_blank())+
@@ -305,7 +613,7 @@ fig.boxplot2.sand = ggplot(arid, aes(x = pretty_grps2, y = Sand, fill=pretty_grp
 
 fig.boxplot2.sr = ggplot(arid, aes(x = pretty_grps2, y = sr, fill=pretty_grps2)) + 
   geom_boxplot(alpha=.7) + 
-  scale_fill_manual(values=c("#5ab4ac","#d8b365"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
   theme_minimal() + 
   theme(text = element_text(size=10))+
    theme(axis.text.x = element_blank())+
