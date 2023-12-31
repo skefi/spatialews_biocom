@@ -89,7 +89,7 @@ analyses.
 
 ### Notes
 
-- All required packages, listed in the `DESCRIPTION` file, will be
-  installed (if necessary).
+- Required packages, listed in the `DESCRIPTION` file, will be installed
+  (if necessary).
 - All required packages and R functions will be loaded.
 - Some analyses listed in the `make.R` take time.

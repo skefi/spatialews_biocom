@@ -2,6 +2,12 @@
 # Fig S2
 
 library(tidyr) # for gather
+library(spatialwarnings) # for display_matrix
+library(dplyr) # for mutate
+library(ggplot2)
+library(cowplot) # for plotgrid
+library(grid) # for grid.arrange
+library(gridExtra) # for grid.arrange
 
 #source(here::here("R", "functions_helper.R"))
 
@@ -9,7 +15,7 @@ library(tidyr) # for gather
 # Parameters needed 
 #---------------------------------------------------------------------------
 # From _targets.R
-NPERM = 200 #value use for final analyses: 199
+NPERM = 199 #value use for final analyses: 199
 BOOTN = 2999 #value use for final analyses: 2999
 path_output <- here::here("outputs")
 ALPHA <- 0.05 # Significance level for indicator trends
@@ -34,7 +40,7 @@ load(file.path(path_output,filename))
 
 #filename_m <- paste0("indics-model_Nperm_", NPERM,".rda")
 # For revision:
-filename_m = paste0("indics-model_Nperm_",NPERM,"_rev.rda")
+filename_m = paste0("indics-kefimodel_Nperm_",NPERM,"_rev.rda")
 load(file.path(path_output,filename_m))
 
 
@@ -183,10 +189,21 @@ options(spatialwarnings.constants.maxit = 1e8)
 
 mat = matrices[[16]]
 new.parameters$b[16]
-display_matrix(mat,palette="Paired")
+#display_matrix(mat,palette="Paired")
+
+fig.img1 <- display_matrix(mat, palette="Greys")+
+  scale_fill_grey(start = 1, end = 0)+
+  theme(legend.position = "none")+
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank()) 
 
 psd_indic <- patchdistr_sews(mat)
-plot_psd <- plot_distr(psd_indic,best_only = TRUE,plrange=FALSE)
+plot_psd <- plot_distr(psd_indic,best_only = TRUE,plrange=FALSE)+
+  theme(legend.position = "none",
+        text = element_text(size=12)) + 
+  scale_x_continuous(trans = "log10", limits = c(1, 10000), breaks = 10^seq(log10(1), log10(1000), by = 1))
 
 #****
 CORES <- min(7, parallel::detectCores()-1)
@@ -230,7 +247,18 @@ mat = matrices[[10]]
 new.parameters$b[10]
 
 psd_indic2 <- patchdistr_sews(mat)
-plot_psd2 <- plot_distr(psd_indic2,best_only = TRUE,plrange=FALSE)
+plot_psd2 <- plot_distr(psd_indic2,best_only = TRUE,plrange=FALSE)+
+  theme(legend.position = "none",
+        text = element_text(size=12)) + 
+  scale_x_continuous(trans = "log10", limits = c(1, 10000), breaks = 10^seq(log10(1), log10(1000), by = 1))
+
+fig.img2 <- display_matrix(mat,palette="Greys")+
+  scale_fill_grey(start = 1, end = 0)+
+  theme(legend.position = "none")+
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank()) 
 
 #****
 CORES <- min(7, parallel::detectCores()-1)
@@ -259,7 +287,19 @@ mat = matrices[[4]]
 new.parameters$b[4]
 
 psd_indic3 <- patchdistr_sews(mat)
-plot_psd3 <- plot_distr(psd_indic3,best_only = TRUE,plrange=FALSE)
+plot_psd3 <- plot_distr(psd_indic3,best_only = TRUE,plrange=FALSE)+
+  theme(legend.position = "none",
+        text = element_text(size=12)) + 
+  scale_x_continuous(trans = "log10", limits = c(1, 10000), breaks = 10^seq(log10(1), log10(1000), by = 1))
+
+fig.img3 <- display_matrix(mat,palette="Greys")+
+  scale_fill_grey(start = 1, end = 0)+
+  theme(legend.position = "none")+
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank()) 
+
 
 plot_psd4 <- plot_distr(psd_indic3,best_only = FALSE,plrange=FALSE)
 
@@ -278,12 +318,12 @@ plot_psd3n   <- plot_psd3 +
 #theme_minimal()+
 #xlim(log10(1),log10(1000))
 
+plot_psd3n
+
 plot_psd4n   <- plot_psd4 +
   #scale_x_log10(limits = c(1,1e4))+
   geom_line(data = random3, aes(x = patchsize, y = y, group = matn), color = "lightgrey")+
   geom_point(aes(x=39.4,y=0))
-
-plot_psd3n
 
 cover <- mean(mat)
 sizemat <- dim(mat)[1]*dim(mat)[2]
@@ -297,51 +337,19 @@ slope    = psd_indic3$psd_type$plexpo[2]
 cutoff   = psd_indic3$psd_type$cutoff[2]
 slope_pl    = psd_indic3$psd_type$plexpo[1]
 
-plot_grid(plot_psdn, plot_psd2n, plot_psd3n, labels= c("A","B","C"),ncol=3, nrow=1)
 
 
+#### Fig. S2
+#figS2_PSD_images_model.pdf
+#5x9.5
 
+#plot_grid(plot_psdn, plot_psd2n, plot_psd3n, labels= c("A","B","C"),ncol=3, nrow=1)
 
-#--------------------------------------------------------------------------
-#--------------------------------------------------------------------------
-#--------------------------------------------------------------------------#--------------------------------------------------------------------------
+blankPlot <- ggplot()+geom_blank(aes(1,1)) + 
+  cowplot::theme_nothing()
 
+first_row <- plot_grid(blankPlot, fig.img1, blankPlot, fig.img2, blankPlot, fig.img3, labels = c('A', '', 'B','','C',''), ncol=6, nrow=1) 
 
+second_row <- plot_grid(plot_psdn, plot_psd2n, plot_psd3n, ncol=3, nrow=1) 
 
-
-
-
-
-
-
-# extract needed results
-indics_df.sub <- indics_df[indics_df$indic=="slope_pl",]
-res.temp$slope_pl <- indics_df.sub$value
-res.temp$slope_pl_null <- indics_df.sub$null_mean
-res.temp$slope_pl_diff <- indics_df.sub$diff
-
-indics_df.sub <- indics_df[indics_df$indic=="slope_tpl",]
-res.temp$slope_tpl <- indics_df.sub$value
-res.temp$slope_tpl_null <- indics_df.sub$null_mean
-res.temp$slope_tpl_diff <- indics_df.sub$diff
-
-indics_df.sub <- indics_df[indics_df$indic=="cutoff",]
-res.temp$cutoff <- indics_df.sub$value
-res.temp$cutoff_null <- indics_df.sub$null_mean
-res.temp$cutoff_diff <- indics_df.sub$diff
-
-indics_df.sub <- indics_df[indics_df$indic=="pl_or_tpl",]
-res.temp$best <- indics_df.sub$value
-res.temp$best_null <- indics_df.sub$null_mean
-res.temp$best_diff <- indics_df.sub$diff
-
-indics_df.sub <- indics_df[indics_df$indic=="perco",]
-res.temp$perco <- indics_df.sub$value
-res.temp$perco_null <- indics_df.sub$null_mean
-res.temp$perco_diff <- indics_df.sub$diff
-
-# merge with rest of results
-res <- rbind(res,res.temp)
-rm(res.temp) # clear res.temp
-
-
+grid.arrange(first_row, second_row, ncol = 1,nrow=2, heights = c(0.6,1))

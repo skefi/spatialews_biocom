@@ -49,7 +49,12 @@ indics_wide_sub <- subset(indics_wide_sub, select=-cover)
 
 arid.pca <- indics_wide_sub[,3:length(indics_wide_sub)]
 
+
+#### Fig. S5
 ggpairs(arid.pca)
+ggsave("./figures/figS5_pairs.pdf", width = 9.5, height = 9.5)
+
+
 
 #indics_wide_sub <- subset(indics_wide_sub, select=-flowlength)
 indics_wide_sub <- subset(indics_wide_sub, select=-moran)
@@ -81,5 +86,9 @@ ggplot(PCAvalues, aes(x = PC1, y = PC2, colour = grps2)) +
   theme(text = element_text(size=12),
         legend.title = element_blank(),
         legend.position = "top")
- 
+
+
+#### Fig. S4
+ggsave("./figures/figS4_pca_data.pdf", width = 7, height = 7)
+
   

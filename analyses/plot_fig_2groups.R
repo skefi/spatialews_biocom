@@ -1,5 +1,5 @@
 # Version for revision PNAS
-# Figures 2, 3, S12, S13
+# Figures 2, 3, S10, S12, S13
 
 #devtools::install_github('alexgenin/rollply')
 library(rollply)
@@ -8,6 +8,7 @@ library(cowplot)
 library(dplyr)
 library(plyr)
 library(tidyr)
+library(gridExtra)
 
 
 #---------------------------------------------------------------------------
@@ -91,9 +92,20 @@ fig.gaussian.fit2.mf = ggplot(arid, aes(x = MF)) +
        y = "density")+
   theme(legend.position="none")
 
-# Figure from 1st submission 
+# for the legend
+fig.leg = ggplot(arid, aes(x = MF)) + 
+  geom_density(aes(fill = pretty_grps2), 
+               bw = .14,alpha= .7) + 
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(legend.position="bottom",legend.title=element_blank())
+
+legend <- get_legend(fig.leg)
+
+
+# Figure from 1st submission; now top row of S13
 #5 x 9.5
-plot_grid(fig.branches2.cover, fig.branches2.mf, fig.gaussian.fit2.cover, fig.gaussian.fit2.mf, labels= c("A","B","C","D"),ncol=2, nrow=2)
+toprowS13 <- plot_grid(fig.branches2.cover, fig.branches2.mf, fig.gaussian.fit2.cover, fig.gaussian.fit2.mf, labels= c("A","B","C","D"),ncol=2, nrow=2)
 
 
 
@@ -194,7 +206,6 @@ fig.branches2.cover.bis =
       geom_point(aes(x = x, y = y, size = n, color = type), size = 2, alpha=0.9, data = extrems_sub)
 
 
-
 # 
 # 
 # Do the same density analysis/detection of maxima/minima for MF
@@ -238,6 +249,7 @@ extrems$type2 <- extrems$type
 
 extrems$type2[extrems$type =="maximum" & extrems$y > 0] <- "max1" 
 extrems$type2[extrems$type =="maximum" & extrems$y < 0] <- "max2" 
+
 fig.pot.mf <- 
   ggplot(NULL, aes(x = x, y = y)) + 
   geom_raster(aes(alpha = z), 
@@ -250,7 +262,7 @@ fig.pot.mf <-
   theme(legend.position="none",
         text = element_text(size=12))+
   labs(x = "aridity", 
-       y = "cover")
+       y = "MF")
 
 extrems_sub <- subset(extrems, extrems$type=="maximum")
 
@@ -266,20 +278,17 @@ fig.branches2.mf.bis =
     geom_point(aes(x = x, y = y, size = n, color = type), size = 2, alpha=0.9, data = extrems_sub)
 
 
-# Combine the two plots together and export 
-#library(patchwork)
-#plot_cover + 
-#  plot_mf + 
-#  plot_annotation(tag_suffix = ")", tag_levels = "a") + 
-#  plot_layout(ncol = 1)
-
-#ggsave("./density_plots_with_extrema.pdf", 
-#       width = 6, 
-#       height = 8)
 
 #plot_grid(fig.branches2.cover.bis, fig.branches2.mf.bis, fig.gaussian.fit2.cover, fig.gaussian.fit2.mf, labels= c("A","B","C","D"),ncol=2, nrow=2)
 
-plot_grid(fig.pot.cover, fig.pot.mf, fig.gaussian.fit2.cover, fig.gaussian.fit2.mf, labels= c("A","B","C","D"),ncol=2, nrow=2)
+
+#### Fig 2
+#fig2_2pot-cover-MF_densities_rev2
+#landscape, 6x9.5
+fig2 <- plot_grid(fig.pot.cover, fig.pot.mf, fig.gaussian.fit2.cover, fig.gaussian.fit2.mf, labels= c("A","B","C","D"),ncol=2, nrow=2)
+grid.arrange(fig2, legend,nrow=2,ncol=1,heights = c(1,0.1))
+#ggsave("./figures/fig2_2pot-cover-MF_densities.pdf", width = 9.5, height = 6)
+
 
 
 
@@ -350,10 +359,11 @@ row2 <- ggplot(indics_ews,aes(x=pretty_grps2, y=value, fill=pretty_grps2,alpha=0
   labs(x= "",y="")+
   geom_boxplot()
 
-## Fig 3 
+
+#### Fig 3 old
 # fig3_spmetrics_boxplots.pdf
 # 5x9.5
-plot_grid(row3, row2, ncol=1, nrow=2)
+#plot_grid(row3, row2, ncol=1, nrow=2)
 
 
 #--------------------------------------------------------------------------# Figure 3 revised : no log for fmaxpatch
@@ -461,10 +471,79 @@ top_row <- plot_grid(fig.boxplot.fmaxpatch, fig.boxplot.slope, fig.boxplot.cutof
 
 bottom_row2 <- plot_grid(fig.boxplot.cv, fig.boxplot.sdr,fig.boxplot.fl, ncol=3,nrow=1)  
 
-## Fig 3 no log
+
+#### Fig 3 no log
 # fig3_spmetrics_boxplots_nolog.pdf
-# 5 x 9.5
-plot_grid(top_row, bottom_row2, ncol = 1)
+# lanbdscape, 6 x 9.5
+fig3 <- plot_grid(top_row, bottom_row2, ncol = 1)
+grid.arrange(fig3, legend,nrow=2,ncol=1,heights = c(1,0.1))
+#ggsave("./figures/fig2_2pot-cover-MF_densities.pdf", width = 9.5, height = 6)
+
+
+#---------------------------------------------------------------------------
+# Figure S10 : 2 groups of cover
+#---------------------------------------------------------------------------
+
+fig.density2d.cover = ggplot(arid)+
+  geom_point(aes(x=Aridity,y=imgcover, color = pretty_grps2c))+
+  scale_color_manual(values = c("#40B0A6","#E1BE6A"))+ 
+  stat_density2d(aes(x=Aridity,y=imgcover),color="black")+
+  theme_minimal()+
+  labs(x = "aridity", 
+       y = "cover")+
+  theme(legend.position="none")
+
+rolling_means2c <- rollply(arid, ~ Aridity | pretty_grps2c, 
+                          wdw.size = 0.07, grid_npts = 128, 
+                          summarise, 
+                          mean.cover = mean(imgcover), 
+                          n = length(imgcover)
+)
+
+# Keep only areas with a lot of points
+rolling_means2c <- subset(rolling_means2c, n > 30)
+
+fig.branches2c.cover = ggplot(NULL, aes(x = Aridity, y = imgcover, color = pretty_grps2c)) + 
+  geom_point(data = arid,alpha=.6,size=1) + 
+  scale_color_manual(values = c("#40B0A6","#E1BE6A"))+ 
+  theme_minimal() + 
+  theme(legend.position="none",
+        text = element_text(size=12))+
+  labs(x = "aridity", 
+       y = "cover")+
+  geom_point(aes(x = Aridity, y = mean.cover, size = n), size = 2, alpha=0.4, data = rolling_means2c,color="black")
+
+fig.gaussian.fit2c.cover = ggplot(arid, aes(x = imgcover)) + 
+  geom_density(aes(fill = pretty_grps2c), 
+               bw = .04,alpha= .7) +
+  geom_point(aes(color = pretty_grps2c), 
+             y = rnorm(nrow(arid), 0, 0.02), alpha = .4) +
+  scale_colour_manual(values=c("#40B0A6","#E1BE6A"))+
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  labs(x = "cover", 
+       y = "density")+
+  theme(legend.position="none")
+
+#boxplot
+fig.boxplot.cover = ggplot(arid, aes(x = pretty_grps2c, y = imgcover, fill=pretty_grps2c)) + 
+  geom_boxplot(alpha=.7) + 
+  scale_fill_manual(values=c("#40B0A6","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  theme(axis.text.x = element_blank())+
+  labs(x = " ", 
+       y = "cover (***)")+
+  theme(legend.position="none",legend.title=element_blank())
+
+
+#### Fig S10
+# figS10_2groupscover.pdf
+# landscape, 6 x 9.5
+top_row <- plot_grid(fig.density2d.cover, fig.branches2c.cover, fig.gaussian.fit2c.cover, fig.boxplot.cover, labels= c("A","B","C","D"),ncol=2, nrow=2)
+
+grid.arrange(top_row, legend,nrow=2,ncol=1,heights = c(1,0.1))
 
 
 
@@ -482,8 +561,8 @@ fig.branch1.vegtype = ggplot(arid.branch1)+
   #scale_color_manual(values = c("olivedrab4", "olivedrab2","yellow3"))+ 
   scale_color_manual(values=c("#407a78","#feb624","#d44206"))+
   theme_minimal()+
-  ggtitle("Low branch (low, low)")+
-  labs(x= "Aridity",y="cover")+
+  ggtitle("low cover, low MF")+
+  labs(x= "aridity",y="cover")+
   theme(legend.position="none")
 
 fig.branch2.vegtype = ggplot(arid.branch2)+
@@ -491,8 +570,8 @@ fig.branch2.vegtype = ggplot(arid.branch2)+
   #scale_color_manual(values = c("olivedrab4", "olivedrab2","yellow3"))+ 
   scale_color_manual(values=c("#407a78","#feb624","#d44206"))+
   theme_minimal()+
-  ggtitle("High branch (high, high)")+
-  labs(x= "Aridity",y="cover")+
+  ggtitle("high cover, high MF")+
+  labs(x= "aridity",y="cover")+
   theme(legend.position="none")
 
 
@@ -549,14 +628,18 @@ fig.frac <- ggplot(tab, aes(fill=veg_type, y=nb, x=branch)) +
        y = "number of sites")+
   theme(axis.title=element_text(size=10))+
   scale_fill_manual(values=c("#407a78","#d44206","#feb624"))+
-  geom_bar(position="stack", stat="identity")
+  geom_bar(position="stack", stat="identity")+
+  labs(fill = "vegetation type")
 
+
+#### Fig S12
 plot_grid(fig.branch2.vegtype, fig.branch1.vegtype,fig.frac, labels=c("A","B","C"),ncol=2,nrow=2)
+ggsave("./figures/figS12_vege_type.pdf.pdf", width = 9.5, height = 6)
 
 
 
 #---------------------------------------------------------------------------
-# Figure S7 : Envi var 
+# Figure S13 : Envi var 
 #---------------------------------------------------------------------------
 
 fig.boxplot2.cover = ggplot(arid, aes(x = pretty_grps2, y = imgcover, fill=pretty_grps2)) + 
@@ -566,7 +649,7 @@ fig.boxplot2.cover = ggplot(arid, aes(x = pretty_grps2, y = imgcover, fill=prett
   theme(text = element_text(size=10))+
   #theme(axis.text.x = element_text(angle=45))+
   theme(axis.text.x = element_blank())+
-  labs(x = "branch", 
+  labs(x = " ", 
        y = "cover (***)")+
   theme(legend.position="none")
 
@@ -577,7 +660,7 @@ fig.boxplot2.mf = ggplot(arid, aes(x = pretty_grps2, y = MF, fill=pretty_grps2))
   theme_minimal() + 
   theme(text = element_text(size=10))+
    theme(axis.text.x = element_blank())+
-  labs(x = "branch", 
+  labs(x = " ", 
        y = "MF (***)")+
   theme(legend.position="none")
 
@@ -587,7 +670,7 @@ fig.boxplot2.arid = ggplot(arid, aes(x = pretty_grps2, y = Aridity, fill=pretty_
   theme_minimal() + 
   theme(text = element_text(size=10))+
   theme(axis.text.x = element_blank())+
-  labs(x = "branch", 
+  labs(x = " ", 
        y = "Aridity (***)")+
   theme(legend.position="none")
 
@@ -597,7 +680,7 @@ fig.boxplot2.prod = ggplot(arid, aes(x = pretty_grps2, y = prod, fill=pretty_grp
   theme_minimal() + 
   theme(text = element_text(size=10))+
   theme(axis.text.x = element_blank())+
-  labs(x = "branch", 
+  labs(x = " ", 
        y = "Productivity (***)")+
   theme(legend.position="none")
 
@@ -607,7 +690,7 @@ fig.boxplot2.sand = ggplot(arid, aes(x = pretty_grps2, y = Sand, fill=pretty_grp
   theme_minimal() + 
   theme(text = element_text(size=10))+
   theme(axis.text.x = element_blank())+
-  labs(x = "branch", 
+  labs(x = " ", 
        y = "Sand (***)")+
   theme(legend.position="none")
 
@@ -617,7 +700,7 @@ fig.boxplot2.sr = ggplot(arid, aes(x = pretty_grps2, y = sr, fill=pretty_grps2))
   theme_minimal() + 
   theme(text = element_text(size=10))+
    theme(axis.text.x = element_blank())+
-  labs(x = "branch", 
+  labs(x = " ", 
        y = "Sp. richness (***)")+
   theme(legend.position="none")
 
@@ -626,6 +709,10 @@ top_row <- plot_grid(fig.branches2.cover, fig.branches2.mf, fig.gaussian.fit2.co
 
 bottom_row2 <- plot_grid(fig.boxplot2.cover, fig.boxplot2.mf, fig.boxplot2.prod,fig.boxplot2.arid, fig.boxplot2.sand, fig.boxplot2.sr, labels = c('E', '', '','', '',''), ncol=6,nrow=1)
 
+
+#### Fig S13
+#figS13_cover_mf_2branches.pdf
 # 8 x 9.5
-plot_grid(top_row, bottom_row2, ncol = 1)
+#plot_grid(top_row, bottom_row2, ncol = 1)
+grid.arrange(top_row, bottom_row2, legend, nrow=3,ncol=1,heights = c(2,1,0.1))
 

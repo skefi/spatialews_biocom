@@ -1,5 +1,5 @@
 # Plot PSD along gradients
-# Fig 4 in revised MS
+# Fig 4  
 
 library(tidyr) # for gather
 library(spatialwarnings)
@@ -109,11 +109,15 @@ indics_high_g <- spread(indics_high_g,indic,value)
 # subset of sites
 chosen_h_g <- subset(indics_high_g,file=="148-b") 
 pics_h_g <- ourdata$matrices[[chosen_h_g$file]]
-display_matrix(pics_h_g,palette="Paired")
+#display_matrix(pics_h_g,palette="Paired")
 
 fig.img1 <- display_matrix(pics_h_g,palette="Greys")+
   theme(legend.position = "none")+
-  scale_fill_grey(start = 1, end = 0) 
+  scale_fill_grey(start = 1, end = 0)+
+  theme(axis.text.x=element_blank(), 
+      axis.ticks.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      axis.ticks.y=element_blank()) 
   
 mat <- pics_h_g
 psd_h_g <- patchdistr_sews(mat, best_by = "AIC", fit_lnorm = FALSE)
@@ -144,9 +148,13 @@ indics_low_g <- spread(indics_low_g,indic,value)
 # subset of sites
 chosen_l_g <- subset(indics_low_g,file=="192-c") 
 pics_l_g <- ourdata$matrices[[chosen_l_g$file]]
-fig.img2 <- display_matrix(pics_l_g,palette="Paired")+
+fig.img2 <-   display_matrix(pics_l_g,palette="Greys")+
   theme(legend.position = "none")+
-  scale_fill_grey(start = 1, end = 0) 
+  scale_fill_grey(start = 1, end = 0)+
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank()) 
 
 mat2 <- pics_l_g
 psd_l_g <- patchdistr_sews(mat2, best_by = "AIC", fit_lnorm = FALSE)
@@ -164,12 +172,10 @@ plot_psdn_l_g   <- plot_psd_l_g +
   ggtitle("degraded")+
   geom_line(data = random2, aes(x = patchsize, y = y, group = matn), color = "lightgrey",show.legend = FALSE)
 
-
-#fig4_PSD_grass-high-low.pdf
-#5x9.5
-plot_grid(plot_psdn_h_g, plot_psdn_l_g, ncol=2, nrow=1) 
+#plot_grid(plot_psdn_h_g, plot_psdn_l_g, ncol=2, nrow=1) 
 #pics_final <- ourdata$matrices[c("148-b","192-c")]
 #display_matrix(pics_final,palette="Paired")
+
 
 blankPlot <- ggplot()+geom_blank(aes(1,1)) + 
   cowplot::theme_nothing()
@@ -178,8 +184,10 @@ first_row <- plot_grid(blankPlot, fig.img1, blankPlot, fig.img2, labels = c('A',
 
 second_row <- plot_grid(plot_psdn_h_g, plot_psdn_l_g, ncol=2, nrow=1) 
 
-grid.arrange(first_row, second_row, ncol = 1,nrow=2, heights = c(0.6,1))
 
+#### Fig 4
+grid.arrange(first_row, second_row, ncol = 1,nrow=2, heights = c(0.6,1))
+#ggsave("./figures/fig4_PSD_grass-high-low.pdf", width = 9.5, height = 5)
 
 chosen_final_h <- subset(indics,file=="148-b")
 #Aridity 0.645

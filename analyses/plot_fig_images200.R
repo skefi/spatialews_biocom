@@ -134,10 +134,9 @@ plot_model_trends <-
 
 
 
-# 5 x 9.5
-# fig S20
-# figS20_slopes_mod_data200_2groups.pdf
+#### fig S20
 plot_grid(plot_model_trends, plot_trends, labels= c("A","B"),ncol=2, nrow=1)
+ggsave("./figures/figS20_slopes_mod_data200_2groups.pdf.pdf", width = 9.5, height = 5)
 
 
 #---------------------------------------------------------------------------
@@ -190,9 +189,9 @@ plot_model_trends_diffs <-
 
 
 ### Figure S21
-# 8 x 9.5
-# figS21_slopes_mod_data200_points_diff.pdf
 top_row <- plot_grid(plot_model_trends, plot_trends, labels= c("A","B"),ncol=2, nrow=1)
 bottom_row <- plot_grid(plot_model_trends_diffs, plot_trends_diffs, labels= c("C","D"),ncol=2, nrow=1)
 plot_grid(top_row, bottom_row, ncol = 1)
+ggsave("./figures/figS21_slopes_mod_data200_points_diff.pdf", width = 9.5, height = 8)
+
 

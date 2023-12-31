@@ -1,18 +1,18 @@
 # Plot slopes of the indicators in the model and in the data (for the whole data set or for groups) ; 
-# Revision: Fig 5, S7, S8, S9, S15, S19
+# Fig 5, S7, S8, S9, S15, S19
 
 library(ggplot2)
 require(tidybayes)
 library(plyr) # for join
 library(cowplot) # for plot_grid
 
-source(here::here("R", "functions_helper.R"))
+#source(here::here("R", "functions_helper.R"))
 
 #---------------------------------------------------------------------------
 # Parameters needed 
 #---------------------------------------------------------------------------
 path_output <- here::here("outputs")
-NPERM = 199 #value used for original submission: 199, for revision: 200
+NPERM = 199 #value used for final analyses: 199 
 BOOTN = 2999 #value used for final analyses: 2999
 
 ALPHA <- 0.05 # Significance level for indicator trends
@@ -54,7 +54,7 @@ load(file.path(path_output,filename_m))
 
 
 #---------------------------------------------------------------------------
-# Figure 2 main text
+# Figure 5 main text
 #---------------------------------------------------------------------------
 
 trends_all <- subset(trends_all, indic != "fmaxpatch")
@@ -147,15 +147,15 @@ plot_trends2 <-
         axis.text = element_text(size = 12))
 
 
-# 8 x 9.5
-# fig 5
+#### Fig. 5
 top_row <- plot_grid(plot_model_trends, plot_trends, labels= c("A","B"),ncol=2, nrow=1)
 bottom_row <- plot_grid(plot_trends2, labels = c('C'), ncol=1,nrow=1)
 plot_grid(top_row, bottom_row, ncol = 1)
+ggsave("./figures/fig5_slope_mod1_data_2groups.pdf", width = 9.5, height = 8)
 
 
 #---------------------------------------------------------------------------
-# Figure S3 trends diff - Plot with mean differences in slopes obs vs. null
+# Figure S7 trends diff - Plot with mean differences in slopes obs vs. null
 # model vs all data
 #---------------------------------------------------------------------------
 
@@ -219,26 +219,25 @@ plot_trends2_diffs <-
   theme(panel.grid.minor.x = element_blank()) + 
   labs(y = "Sp. metric", x = "Est. diff",title="Data (per group)")
 
-### Figure S7
-# 8 x 9.5
-# figS7_slopes_mod_data_points_diff.pdf
+
+#### Figure S7
 top_row <- plot_grid(plot_model_trends, plot_trends, labels= c("A","B"),ncol=2, nrow=1)
 bottom_row <- plot_grid(plot_model_trends_diffs, plot_trends_diffs, labels= c("C","D"),ncol=2, nrow=1)
 plot_grid(top_row, bottom_row, ncol = 1)
+ggsave("./figures/figS7_slopes_mod_data_points_diff.pdf", width = 9.5, height = 8)
 
 
 #---------------------------------------------------------------------------
-# Figure S16 (S9) trends diff - 2 groups
+# Figure S15 trends diff - 2 groups
 #---------------------------------------------------------------------------
 
-## Figure S15 in rev
-# 8 x 9.5
-# figS16_slopes_2groups_points_diff
+#### Figure S15
 plot_grid(plot_trends2, plot_trends2_diffs, labels= c("A","B"), ncol = 1)
+ggsave("./figures/figS15_slopes_2groups_points_diff.pdf", width = 9.5, height = 8)
 
 
 #---------------------------------------------------------------------------
-# Figure S20 (S13) trends diff - 3 groups
+# Figure S19 trends diff - 3 groups
 #---------------------------------------------------------------------------
 
 trends3_all <- subset(trends3_all, indic != "fmaxpatch")
@@ -283,15 +282,14 @@ plot_trends3_diffs <- ggplot(trends3_diffs, aes(x = diff_obs_m_null, y = indic_o
   labs(y = "", x = "Est. diff",title="Data (per group)")
 
 
-# Fig S19 in rev
-#figS19_slopes_3groups_points_diffs
-#8 x 9.5
+#### Fig S19
 plot_grid(plot_trends3, plot_trends3_diffs, labels= c("A","B"), ncol = 1)
-
+ggsave("./figures/figS19_slopes_3groups_points_diffs.pdf", width = 9.5, height = 8)
 
 
 
 #---------------------------------------------------------------------------
+# Figures S8 and S9
 # Figure TPB model no fac
 #---------------------------------------------------------------------------
 
@@ -344,7 +342,7 @@ plot_tpbmodel_glob_trends_diffs <-
   # We want a P-value close to zero when the obs is above the null, so we take 
   # 1 - the P-value to plug into the color scale
   geom_col(aes(fill = signf(1-pnull_inf_obs, ALPHA))) + 
-  #xlim(-1.5,2)+
+  xlim(-3,8)+
   sign_fill_scale + 
   facet_grid(indic_group ~ ., space = "free_y", 
              scale = "free_y", switch = "y") + 
@@ -403,7 +401,7 @@ plot_tpbmodel_loc_trends_diffs <-
   # We want a P-value close to zero when the obs is above the null, so we take 
   # 1 - the P-value to plug into the color scale
   geom_col(aes(fill = signf(1-pnull_inf_obs, ALPHA))) + 
-  #xlim(-1.5,2)+
+  xlim(-3,8)+
   sign_fill_scale + 
   facet_grid(indic_group ~ ., space = "free_y", 
              scale = "free_y", switch = "y") + 
@@ -448,7 +446,7 @@ plot_scanlonmodel_fac_trends <-
                      point_size = 2, 
                      data = subset(model_trends_all, 
                                    indic_value_type == SLOPE_OBS_TYPE)) +
-  xlim(-6,6)+
+  xlim(-6,9)+
   facet_grid(indic_group ~ ., space = "free_y", 
              scale = "free_y", switch = "y") + 
   theme_minimal() + 
@@ -472,7 +470,7 @@ plot_scanlonmodel_fac_trends_diffs <-
   # 1 - the P-value to plug into the color scale
   geom_col(aes(fill = signf(1-pnull_inf_obs, ALPHA))) + 
   sign_fill_scale + 
-  #xlim(-1.5,2)+
+  xlim(-3,8)+
   facet_grid(indic_group ~ ., space = "free_y", 
              scale = "free_y", switch = "y") + 
   theme_minimal() + 
@@ -529,7 +527,7 @@ plot_scanlonmodel_nofac_trends_diffs <-
   # 1 - the P-value to plug into the color scale
   geom_col(aes(fill = signf(1-pnull_inf_obs, ALPHA))) + 
   sign_fill_scale + 
-  #xlim(-1.5,2)+
+  xlim(-3,8)+
   facet_grid(indic_group ~ ., space = "free_y", 
              scale = "free_y", switch = "y") + 
   theme_minimal() + 
@@ -545,29 +543,26 @@ plot_scanlonmodel_nofac_trends_diffs <-
 # Figure 
 #---------------------------------------------------------------------------
 
-# figS9_slopes_data_mod1_mod2_points.pdf
-#top_row <- plot_grid(plot_trends, labels= c("A"),ncol=3, nrow=1)
-
 intermediate_row <- plot_grid(plot_model_trends, plot_tpbmodel_glob_trends, plot_tpbmodel_loc_trends, labels= c("A","B","C"),ncol=3, nrow=1)
 
 bottom_row <- plot_grid(plot_scanlonmodel_fac_trends, plot_scanlonmodel_nofac_trends, labels = c("D","E"), ncol=3,nrow=1)
 
-# 9.5 x 11
+
+#### Fig. S8
 #plot_grid(top_row, intermediate_row, bottom_row, ncol = 1)
-# figS8_slopes_mod1_mod2_points
-# 8 x 11
 plot_grid(intermediate_row, bottom_row, ncol = 1)
+ggsave("./figures/figS8_slopes_mod1_mod2_points.pdf", width = 9.5, height = 8)
 
 
-# figS9_slopes_data_mod1_mod2_diffs.pdf
 #top_row <- plot_grid(plot_trends_diffs, labels= c("A"),ncol=3, nrow=1)
 intermediate_row <- plot_grid(plot_model_trends_diffs, plot_tpbmodel_glob_trends_diffs, plot_tpbmodel_loc_trends_diffs, labels= c("A","B","C"),ncol=3, nrow=1)
 bottom_row <- plot_grid(plot_scanlonmodel_fac_trends_diffs, plot_scanlonmodel_nofac_trends_diffs, labels = c("D","E"), ncol=3,nrow=1)
 
-# 9.5 x 11
+
+#### Fig. S9
 #plot_grid(top_row, intermediate_row, bottom_row, ncol = 1)
-# 8 x 11
 plot_grid(intermediate_row, bottom_row, ncol = 1)
+ggsave("./figures/figS9_slopes_data_mod1_mod2_diffs.pdf", width = 9.5, height = 8)
 
 
 

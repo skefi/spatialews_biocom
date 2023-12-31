@@ -7,6 +7,7 @@ library(randomForest)
 library(gmodels)
 library(patchwork)
 library(plyr)
+library(gridExtra)
 
 #devtools::install_github('alexgenin/rollply')
 library(rollply)
@@ -314,6 +315,18 @@ fig.boxplot.fl = ggplot(indics_wide, aes(x = pretty_grps3, y = flowlength, fill=
        y = "flowlength (***)")+
   theme(legend.position="none")
 
+fig.leg = ggplot(indics_wide, aes(x = pretty_grps3, y = flowlength, fill=pretty_grps3)) + 
+  geom_boxplot(alpha=.7) + 
+  scale_fill_manual(values=c("#66C2A5","#8DA0CB","#E1BE6A"))+
+  theme_minimal() + 
+  theme(text = element_text(size=12))+
+  theme(axis.text.x = element_blank())+
+  labs(x = " ", 
+       y = "flowlength (***)")+
+  theme(legend.position="bottom",legend.title=element_blank())
+
+legend <- get_legend(fig.leg)
+
 blankPlot <- ggplot()+geom_blank(aes(1,1)) + 
   cowplot::theme_nothing()
 
@@ -321,7 +334,7 @@ third_row <- plot_grid(fig.boxplot.fmaxpatch, fig.boxplot.slope, fig.boxplot.cut
 
 fourth_row <- plot_grid(fig.boxplot.cv, fig.boxplot.sdr,fig.boxplot.fl, labels = c('', '', ''), ncol=3,nrow=1)  
 
-## Fig S17 no log
+## Fig S16 no log
 # fig3_spmetrics_boxplots_nolog.pdf
 # 5 x 9.5
 #plot_grid(top_row, bottom_row2, ncol = 1)
@@ -346,130 +359,9 @@ lay <- rbind(c(1),
 
 grid.arrange(top_row, bottom_row2bis,third_row,fourth_row,legend,layout_matrix = lay)
 
-grid.arrange(top_row, bottom_row2bis,third_row,fourth_row,legend,nrow=5,ncol=1,heights = c(2,1,1,1,0.2))
+grid.arrange(top_row, bottom_row2bis,third_row,fourth_row,legend,nrow=5,ncol=1,heights = c(2,1,1,1,0.1))
 
-#figS17_3groups_all.pdf
+#figS16_3groups_all.pdf
 #9.5x9.5
 
-
-
-
-
-#-------------------------------------------------------------------------------
-## Compare 3 branches for patch indic
-
-
-indics_c <- indics
-unique(indics_c$indic)
-#indics_c <- subset(indics_c, indic != "cover")
-#indics_c <- subset(indics_c, indic != "fmaxpatch")
-#indics_c <- subset(indics_c, indic != "moran")
-
-indics_patch <- subset(indics_c, indic == "cutoff"  | indic == "logfmaxpatch" | indic == "slope")
-indics_patch$indic <- as.factor(indics_patch$indic)
-indics_patch$prop_order = factor(indics_patch$indic,levels=c("logfmaxpatch","slope","cutoff"),ordered=TRUE) 
-
-#indics_patch2 <- indics_patch
-#indics_patch <- indics_patch2
-#indics_patch[indics_patch$indic == "cutoff",c("value")] <- log10(indics_patch[indics_patch$indic == "cutoff",c("value")] )
-#indics_patch[indics_patch$indic == "slope",c("value")] <- sqrt(indics_patch[indics_patch$indic == "slope",c("value")] )
-
-facet_names3 <- list(
-  'logfmaxpatch'="log(fmaxpatch) (***)",
-  'slope'="slope (***)",
-  'cutoff'="cutoff (***)"
-)
-
-facet_labeller3 <- function(variable,value){
-  return(facet_names3[value])
-}
-
-col3 <- ggplot(indics_patch,aes(x=pretty_grps3, y=value, fill=pretty_grps3,alpha=0.7)) + 
-  #facet_wrap(~indic,
-  facet_wrap(~prop_order,
-             labeller = facet_labeller3,
-             scale="free_y",ncol=1) +
-  scale_fill_manual(values=c("#66C2A5","#8DA0CB","#E1BE6A"))+
-  theme_minimal() +
-  theme(legend.position="none",
-        text = element_text(size=10))+
-  labs(x= "branch",y="")+
-  geom_boxplot()
-
-
-row3 <- ggplot(indics_patch,aes(x=pretty_grps3, y=value, fill=pretty_grps3,alpha=0.7)) +
-  #facet_wrap(~indic,
-  facet_wrap(~prop_order,
-             labeller = facet_labeller3,
-             scale="free_y",nrow=1) +
-  scale_fill_manual(values=c("#66C2A5","#8DA0CB","#E1BE6A"),name=NULL)+
-  theme_minimal() +
-  theme(legend.position="bottom",
-        text = element_text(size=12))+
-  scale_alpha(guide = 'none')+ #removes alpha legend
-  theme(axis.text.x = element_blank())+
-  labs(x= "",y="")+
-  geom_boxplot()
-
-legend <- get_legend(row3)
-
-indics_ews <- subset(indics_c, indic == "cv.variance" | indic == "sdr" | indic == "flowlength")
-indics_ews$indic <- as.factor(indics_ews$indic)
-indics_ews$prop_order = factor(indics_ews$indic,levels=c("cv.variance","sdr","flowlength"),ordered=TRUE) 
-
-facet_names2 <- list(
-  'cv.variance'="cv (***)",
-  'sdr'="sdr (NS)",
-  'flowlength'="flowlength (***)"
-)
-
-facet_labeller2 <- function(variable,value){
-  return(facet_names2[value])
-}
-
-
-col2 <- ggplot(indics_ews,aes(x=pretty_grps3, y=value, fill=pretty_grps3,alpha=0.7)) + 
-  #facet_wrap(~indic,
-  facet_wrap(~prop_order,
-             labeller = facet_labeller2,
-             scale="free_y",ncol=1) +
-  scale_fill_manual(values=c("#66C2A5","#8DA0CB","#FC8D62"))+
-  theme_minimal() +
-  theme(legend.position="none",
-        text = element_text(size=10))+
-  labs(x= "branch",y="")+
-  geom_boxplot()
-
-row2 <- ggplot(indics_ews,aes(x=pretty_grps3, y=value, fill=pretty_grps3,alpha=0.7)) + 
-  #facet_wrap(~indic,
-  facet_wrap(~prop_order,
-             labeller = facet_labeller2,
-             scale="free_y",nrow=1) +
-  scale_fill_manual(values=c("#66C2A5","#8DA0CB","#FC8D62"))+
-  theme_minimal() +
-  theme(legend.position="none",
-        text = element_text(size=12))+
-  theme(axis.text.x = element_blank())+
-  labs(x= "group",y="")+
-  geom_boxplot()
-
-plot_grid(row2, row3, fig.slope.data.2.scaled.points, ncol=1, nrow=3)
-
-# 8x9.5
-lay <- rbind(c(1),
-             c(2),
-             c(3),
-             c(3))
-
-grid.arrange(row2, row3, fig.slope.data.2.scaled.points, layout_matrix = lay)
-
-
-
-bottom_row3 <- plot_grid(row3, row2, labels = c('F', 'G'), ncol=1,nrow=2)
-
-
-# 13.3 x 9.5
-# 12 x 9.5
-#plot_grid(top_row, middle_row, bottom_row, ncol = 1)
-plot_grid(top_row, bottom_row2bis, bottom_row3,ncol = 1)
 

@@ -5,7 +5,7 @@
 #' 
 #' @author Sonia Kefi \email{sonia.kefi@umontpellier.fr}
 #' 
-#' @date 2023/28/08
+#' @date 2023/30/11
 
 
 
@@ -55,6 +55,7 @@ function_indicator_trends_scanlonmodel(NPERM,N_SHUFFLE,path_output,BOOTN,ALPHA)
 # 'indics-kefimodel_all_Nperm_199_rev.rda', 'indics-scanlonmodel_Nperm_199_rev.rda' (which contain all the spatial metrics calculated on the model simulation outcomes)
 # 'trends_one_group_Nperm_199_Bootn_2999_rev.rda', 'trends_two_groups_Nperm_199_Bootn_2999_rev.rda', 'trends_three_groups_Nperm_199_Bootn_2999_rev.rda' 
 # (which contain the trends in spatial metrics along the aridity gradient in the data (all or by group), and in the models).
+
 # All files are in the folder 'outputs'. 
 
 # To plot the figures of the paper, run the files 'plot_fig.R' in the folder 'analyses'. 
